@@ -17,7 +17,12 @@ is full.
 
 -}
 
-module Control.Concurrent.STM.RingBuffer (RingBuffer(..),Node(..),newRingBuffer,takeBuf,putBuf) where
+module Control.Concurrent.STM.RingBuffer
+    (RingBuffer(..)
+    ,Node(..)
+    ,newRingBuffer
+    ,takeRB
+    ,putRB) where
 import Control.Concurrent.STM
 import Data.List (genericReplicate)
 import System.IO.Unsafe (unsafePerformIO)
@@ -53,16 +58,16 @@ newRingBuffer capacity
 
 -- | Take an element out of the buffer. The buffer is FIFO.
 --   Blocks/retries if buffer is empty.
-takeBuf :: RingBuffer a -> STM a
-takeBuf buffer = do
+takeRB :: RingBuffer a -> STM a
+takeRB buffer = do
    Node b n <- readTVar (readHead buffer)
    writeTVar (readHead buffer) n 
    takeTMVar b
 
 -- | Put an element into the buffer. The buffer is FIFO.
 --   Blocks/retries if buffer is full.
-putBuf :: RingBuffer a -> a -> STM ()
-putBuf buffer a = do
+putRB :: RingBuffer a -> a -> STM ()
+putRB buffer a = do
    Node b n <- readTVar (writeHead buffer)
    putTMVar b a
    writeTVar (writeHead buffer) n
