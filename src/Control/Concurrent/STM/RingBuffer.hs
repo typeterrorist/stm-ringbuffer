@@ -37,11 +37,11 @@ data Node a = Node { box  :: TMVar a
 -- | A bounded, concurrency-safe ring buffer.
 data RingBuffer a = RingBuffer
                          { writeHead :: TVar (Node a)
-                            -- ^ The write head points to the next node to be filed
+                            -- ^ The write head points to the next node to be filled
                          , readHead :: TVar (Node a) }
                             -- ^ The read head points to the next node to be taken
 
--- | Contstruct the ring of nodes from a list of boxes (usually empty)
+-- | Construct the ring of nodes from a list of boxes (usually empty)
 ring :: [TMVar a] -> Node a
 ring = foldr Node =<< ring
 
