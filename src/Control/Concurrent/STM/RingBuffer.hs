@@ -50,9 +50,8 @@ newRingBuffer :: Integer -> STM (RingBuffer a)
 newRingBuffer capacity
  | capacity <= 0 = error "A buffer must have positive capacity"
  | otherwise = do
-     let r = ring $ ($ ()) <$> genericReplicate
-                                   capacity
-                                   (\_ -> unsafePerformIO newEmptyTMVarIO) -- Safe!
+     let r = ring $ ($ newEmptyTMVarIO)
+                 <$> genericReplicate capacity unsafePerformIO -- Safe!
      RingBuffer <$> newTVar r
                 <*> newTVar r
 
