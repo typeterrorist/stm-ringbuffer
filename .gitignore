@@ -29,3 +29,5 @@ cabal.project.local~
 .HTF/
 .ghc.environment.*
 
+.aider*
+.env
