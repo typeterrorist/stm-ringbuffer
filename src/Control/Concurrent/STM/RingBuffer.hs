@@ -15,12 +15,16 @@ The buffer allows concurrent, blocking read ('takeBuf') and write ('putBuf')
 operations. Reads retries if the buffer is empty, and writes retries if the buffer
 is full.
 
+The buffer can be created either in STM using 'newRingBuffer' or directly in IO using
+'newRingBufferIO'.
+
 -}
 
 module Control.Concurrent.STM.RingBuffer
     (RingBuffer(..)
     ,Node(..)
     ,newRingBuffer
+    ,newRingBufferIO
     ,takeRB
     ,putRB) where
 import Control.Concurrent.STM
@@ -54,6 +58,16 @@ newRingBuffer capacity
                  <$> genericReplicate capacity unsafePerformIO -- Safe!
      RingBuffer <$> newTVar r
                 <*> newTVar r
+
+-- | Create a new RingBuffer with a fixed capacity directly in IO
+newRingBufferIO :: Integer -> IO (RingBuffer a)
+newRingBufferIO capacity
+ | capacity <= 0 = error "A buffer must have positive capacity"
+ | otherwise = do
+     let r = ring $ ($ newEmptyTMVarIO)
+                 <$> genericReplicate capacity unsafePerformIO -- Safe!
+     RingBuffer <$> newTVarIO r
+                <*> newTVarIO r
 
 -- | Take an element out of the buffer. The buffer is FIFO.
 --   Blocks/retries if buffer is empty.

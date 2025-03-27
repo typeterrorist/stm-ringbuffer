@@ -75,6 +75,15 @@ prop_test_productive_thread capacity = capacity > 0 ==> monadicIO $ do
    xs <- run $ sequence $ genericReplicate l (atomically $ takeRB buffer)
    assert (xs == [1..l])
 
+-- | Test creating a large buffer (3 million capacity) using newRingBufferIO and using it minimally
+prop_large_buffer_io :: [Int] -> Property
+prop_large_buffer_io smallList = monadicIO $ do
+    let capacity = 300000000 :: Integer
+    buffer <- run $ newRingBufferIO capacity
+    run $ atomically $ mapM_ (putRB buffer) smallList
+    ys <- run $ atomically $ mapM (const $ takeRB buffer) smallList
+    assert (smallList == ys)
+
 return [] -- Needed for QuickCheck's template haskell
 
 tests :: IO Bool
